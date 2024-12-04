@@ -1,4 +1,3 @@
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 using Timer = System.Windows.Forms.Timer;
 
 namespace WinFormsPhysics {
@@ -191,9 +190,7 @@ namespace WinFormsPhysics {
         // With other objects
         for (int j = i + 1; j < Objects.Count; j++) {
           Object a = Objects[i], b = Objects[j];
-
           ObjectForm formA = a.BodyForm, formB = b.BodyForm;
-
           Rectangle overlap = Rectangle.Intersect(formA.Bounds, formB.Bounds);
 
           if (overlap == Rectangle.Empty) continue;
@@ -210,6 +207,7 @@ namespace WinFormsPhysics {
             }
             break;
           }
+
           if (formA.FixedPos) {
             if (horizontalCollision) {
               b.Velocity.X *= -1;
@@ -225,8 +223,13 @@ namespace WinFormsPhysics {
           Vector newVA = (a.Velocity * (a.Mass - b.Mass) + b.Velocity * 2 * b.Mass) / massSum;
           Vector newVB = (a.Velocity * 2 * a.Mass + b.Velocity * (b.Mass - a.Mass)) / massSum;
 
-          a.Velocity = newVA * 0.8;
-          b.Velocity = newVB * 0.8;
+          if (horizontalCollision) {
+            a.Velocity.X = newVA.X * 0.8;
+            b.Velocity.X = newVB.X * 0.8;
+          } else {
+            a.Velocity.Y = newVA.Y * 0.8;
+            b.Velocity.Y = newVB.Y * 0.8;
+          }
         }
       }
 
