@@ -31,7 +31,7 @@
       // massText
       // 
       massText.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-      massText.Location = new Point(73, 23);
+      massText.Location = new Point(65, 13);
       massText.Margin = new Padding(4);
       massText.Name = "massText";
       massText.Size = new Size(81, 29);
@@ -41,15 +41,15 @@
       // 
       // label1
       // 
-      label1.Location = new Point(20, 26);
+      label1.Location = new Point(12, 16);
       label1.Name = "label1";
-      label1.Size = new Size(46, 21);
+      label1.Size = new Size(46, 26);
       label1.TabIndex = 1;
       label1.Text = "Mass";
       // 
       // fixPos
       // 
-      fixPos.Location = new Point(20, 59);
+      fixPos.Location = new Point(12, 49);
       fixPos.Name = "fixPos";
       fixPos.Size = new Size(124, 25);
       fixPos.TabIndex = 2;
@@ -62,7 +62,7 @@
       AutoScaleDimensions = new SizeF(9F, 21F);
       AutoScaleMode = AutoScaleMode.Font;
       AutoSize = true;
-      ClientSize = new Size(179, 113);
+      ClientSize = new Size(161, 85);
       Controls.Add(label1);
       Controls.Add(fixPos);
       Controls.Add(massText);
@@ -71,6 +71,7 @@
       MaximizeBox = false;
       MinimizeBox = false;
       Name = "ObjectForm";
+      ShowIcon = false;
       Text = "ObjectForm";
       ResizeBegin += ObjectForm_ResizeBegin;
       ResizeEnd += ObjectForm_ResizeEnd;

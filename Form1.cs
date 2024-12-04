@@ -12,6 +12,16 @@ namespace WinFormsPhysics {
       Engine.GravityAcc.X = gravityX.Value / 10.0;
       Engine.GravityAcc.Y = gravityY.Value / 10.0;
       Engine.GravityConst = gravityConst.Value / 10.0;
+      gravityXText.Text = Engine.GravityAcc.X.ToString();
+      gravityYText.Text = Engine.GravityAcc.Y.ToString();
+      gravityConstText.Text = Engine.GravityConst.ToString();
+      lengthText.Text = Engine.LengthFactor.ToString();
+    }
+
+    private double Clip(double val, double min, double max) {
+      if (val < min) return min;
+      if (val > max) return max;
+      return val;
     }
 
     private void PhysicsCheckbox_CheckedChanged(object sender, EventArgs e) {
@@ -33,18 +43,60 @@ namespace WinFormsPhysics {
 
     private void gravityX_Scroll(object sender, EventArgs e) {
       Engine.GravityAcc.X = gravityX.Value / 10.0;
+      gravityXText.Text = Engine.GravityAcc.X.ToString();
     }
 
     private void gravityY_Scroll(object sender, EventArgs e) {
       Engine.GravityAcc.Y = gravityY.Value / 10.0;
+      gravityYText.Text = Engine.GravityAcc.Y.ToString();
     }
 
     private void gravityConst_Scroll(object sender, EventArgs e) {
       Engine.GravityConst = gravityConst.Value / 10.0;
+      gravityConstText.Text = Engine.GravityConst.ToString();
+    }
+
+    private void gravityXText_TextChanged(object sender, EventArgs e) {
+      if (double.TryParse(gravityXText.Text, out var value)) {
+        value = Clip(value, -10, 10);
+        Engine.GravityAcc.X = value;
+        gravityX.Value = (int)value * 10;
+      }
+      gravityXText.Text = Engine.GravityAcc.X.ToString();
+    }
+
+    private void gravityYText_TextChanged(object sender, EventArgs e) {
+      if (double.TryParse(gravityYText.Text, out var value)) {
+        value = Clip(value, -10, 10);
+        Engine.GravityAcc.Y = value;
+        gravityY.Value = (int)value * 10;
+      }
+      gravityYText.Text = Engine.GravityAcc.Y.ToString();
+    }
+
+    private void gravityConstText_TextChanged(object sender, EventArgs e) {
+      if (double.TryParse(gravityConstText.Text, out var value)) {
+        value = Clip(value, 0, 500);
+        Engine.GravityConst = value;
+        gravityConst.Value = (int)value * 10;
+      }
+      gravityConst.Text = Engine.GravityConst.ToString();
+    }
+
+    private void lengthText_TextChanged(object sender, EventArgs e) {
+      if (double.TryParse(lengthText.Text, out var value)) {
+        value = Clip(value, 0, 10);
+        Engine.LengthFactor = value;
+      }
+      lengthText.Text = Engine.LengthFactor.ToString();
     }
 
     private void boundsCheckbox_CheckedChanged(object sender, EventArgs e) {
       Engine.ScreenBounds = boundsCheckbox.Checked;
+    }
+
+    private void collisionCheckbox_CheckedChanged(object sender, EventArgs e) {
+      Engine.ObjectCollision = collisionCheckbox.Checked;
     }
   }
 
@@ -108,7 +160,9 @@ namespace WinFormsPhysics {
 
   public class PhysicsEngine {
     public bool ScreenBounds = true;
+    public bool ObjectCollision = true;
     public double TimeLapse = 1;
+    public double LengthFactor = 1;
     public double GravityConst = 400;
     public Vector GravityAcc = new(0, 1);
     public List<Object> Objects = [];
@@ -149,7 +203,7 @@ namespace WinFormsPhysics {
             Object a = Objects[i], b = Objects[j];
             Vector posA = a.Position, posB = b.Position;
 
-            double distance = Distance(posA, posB);
+            double distance = Distance(posA, posB) * LengthFactor;
             if (distance == 0) continue;
 
             double f = (GravityConst * a.Mass * b.Mass) / (distance * distance);
@@ -188,47 +242,49 @@ namespace WinFormsPhysics {
         }
 
         // With other objects
-        for (int j = i + 1; j < Objects.Count; j++) {
-          Object a = Objects[i], b = Objects[j];
-          ObjectForm formA = a.BodyForm, formB = b.BodyForm;
-          Rectangle overlap = Rectangle.Intersect(formA.Bounds, formB.Bounds);
+        if (ObjectCollision) {
+          for (int j = i + 1; j < Objects.Count; j++) {
+            Object a = Objects[i], b = Objects[j];
+            ObjectForm formA = a.BodyForm, formB = b.BodyForm;
+            Rectangle overlap = Rectangle.Intersect(formA.Bounds, formB.Bounds);
 
-          if (overlap == Rectangle.Empty) continue;
-          
-          bool horizontalCollision = overlap.Height > overlap.Width;
+            if (overlap == Rectangle.Empty) continue;
 
-          if (formB.FixedPos) {
-            if (horizontalCollision) {
-              a.Velocity.X *= -1;
-              a.Velocity *= 0.9;
-            } else {
-              a.Velocity.Y *= -1;
-              a.Velocity *= 0.9;
+            bool horizontalCollision = overlap.Height > overlap.Width;
+
+            if (formB.FixedPos) {
+              if (horizontalCollision) {
+                a.Velocity.X *= -1;
+                a.Velocity *= 0.9;
+              } else {
+                a.Velocity.Y *= -1;
+                a.Velocity *= 0.9;
+              }
+              break;
             }
-            break;
-          }
 
-          if (formA.FixedPos) {
-            if (horizontalCollision) {
-              b.Velocity.X *= -1;
-              b.Velocity *= 0.9;
-            } else {
-              b.Velocity.Y *= -1;
-              b.Velocity *= 0.9;
+            if (formA.FixedPos) {
+              if (horizontalCollision) {
+                b.Velocity.X *= -1;
+                b.Velocity *= 0.9;
+              } else {
+                b.Velocity.Y *= -1;
+                b.Velocity *= 0.9;
+              }
+              break;
             }
-            break;
-          }
 
-          double massSum = a.Mass + b.Mass;
-          Vector newVA = (a.Velocity * (a.Mass - b.Mass) + b.Velocity * 2 * b.Mass) / massSum;
-          Vector newVB = (a.Velocity * 2 * a.Mass + b.Velocity * (b.Mass - a.Mass)) / massSum;
+            double massSum = a.Mass + b.Mass;
+            Vector newVA = (a.Velocity * (a.Mass - b.Mass) + b.Velocity * 2 * b.Mass) / massSum;
+            Vector newVB = (a.Velocity * 2 * a.Mass + b.Velocity * (b.Mass - a.Mass)) / massSum;
 
-          if (horizontalCollision) {
-            a.Velocity.X = newVA.X * 0.8;
-            b.Velocity.X = newVB.X * 0.8;
-          } else {
-            a.Velocity.Y = newVA.Y * 0.8;
-            b.Velocity.Y = newVB.Y * 0.8;
+            if (horizontalCollision) {
+              a.Velocity.X = newVA.X * 0.8;
+              b.Velocity.X = newVB.X * 0.8;
+            } else {
+              a.Velocity.Y = newVA.Y * 0.8;
+              b.Velocity.Y = newVB.Y * 0.8;
+            }
           }
         }
       }
