@@ -4,6 +4,7 @@ namespace WinFormsPhysics {
   public partial class Form1 : Form {
     readonly Timer UpdateTimer = new();
     readonly PhysicsEngine Engine = new();
+    private int ObjectCount = 0;
 
     public Form1() {
       InitializeComponent();
@@ -33,12 +34,27 @@ namespace WinFormsPhysics {
       }
     }
 
+    private void UpdateObjectCount() {
+      ObjectCount = Engine.Objects.Count;
+      Text = $"WinFormsPhysics ({ObjectCount})";
+    }
+
     private void SummonButton_Click(object sender, EventArgs e) {
       var win = new ObjectForm();
       var obj = new Object(win);
-      win.FormClosed += (sender, e) => Engine.Objects.Remove(obj);
+      win.FormClosed += (sender, e) => {
+        Engine.Objects.Remove(obj);
+        UpdateObjectCount();
+      };
       win.Show();
       Engine.Objects.Add(obj);
+      UpdateObjectCount();
+    }
+
+    private void clearButton_Click(object sender, EventArgs e) {
+      while (Engine.Objects.Count > 0) {
+        Engine.Objects[0].BodyForm.Close();
+      }
     }
 
     private void gravityX_Scroll(object sender, EventArgs e) {

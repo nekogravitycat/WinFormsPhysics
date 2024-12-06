@@ -42,6 +42,7 @@
       gravityConstText = new TextBox();
       label4 = new Label();
       lengthText = new TextBox();
+      clearButton = new Button();
       ((System.ComponentModel.ISupportInitialize)gravityX).BeginInit();
       ((System.ComponentModel.ISupportInitialize)gravityY).BeginInit();
       ((System.ComponentModel.ISupportInitialize)gravityConst).BeginInit();
@@ -49,12 +50,12 @@
       // 
       // summonButton
       // 
-      summonButton.Location = new Point(263, 222);
+      summonButton.Location = new Point(344, 222);
       summonButton.Margin = new Padding(4);
       summonButton.Name = "summonButton";
-      summonButton.Size = new Size(197, 53);
+      summonButton.Size = new Size(116, 53);
       summonButton.TabIndex = 0;
-      summonButton.Text = "Summon New Object";
+      summonButton.Text = "New Object";
       summonButton.UseVisualStyleBackColor = true;
       summonButton.Click += SummonButton_Click;
       // 
@@ -184,24 +185,36 @@
       label4.AutoSize = true;
       label4.Location = new Point(22, 238);
       label4.Name = "label4";
-      label4.Size = new Size(104, 21);
+      label4.Size = new Size(58, 21);
       label4.TabIndex = 13;
-      label4.Text = "Length Factor";
+      label4.Text = "Length";
       // 
       // lengthText
       // 
-      lengthText.Location = new Point(132, 235);
+      lengthText.Location = new Point(101, 235);
       lengthText.Name = "lengthText";
       lengthText.Size = new Size(78, 29);
       lengthText.TabIndex = 14;
       lengthText.TextAlign = HorizontalAlignment.Center;
       lengthText.TextChanged += lengthText_TextChanged;
       // 
+      // clearButton
+      // 
+      clearButton.Location = new Point(220, 222);
+      clearButton.Margin = new Padding(4);
+      clearButton.Name = "clearButton";
+      clearButton.Size = new Size(116, 53);
+      clearButton.TabIndex = 15;
+      clearButton.Text = "Clear Objects";
+      clearButton.UseVisualStyleBackColor = true;
+      clearButton.Click += clearButton_Click;
+      // 
       // Form1
       // 
       AutoScaleDimensions = new SizeF(9F, 21F);
       AutoScaleMode = AutoScaleMode.Font;
       ClientSize = new Size(480, 298);
+      Controls.Add(clearButton);
       Controls.Add(lengthText);
       Controls.Add(label4);
       Controls.Add(gravityConstText);
@@ -246,5 +259,6 @@
     private TextBox gravityConstText;
     private Label label4;
     private TextBox lengthText;
+    private Button clearButton;
   }
 }
