@@ -19,7 +19,7 @@
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/WinFormsPhysics.git
+   git clone https://github.com/nekogravitycat/WinFormsPhysics.git
    ```
 2. Open the project in Visual Studio.
 3. Build and run the solution.
