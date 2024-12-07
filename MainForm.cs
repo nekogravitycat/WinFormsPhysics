@@ -17,6 +17,7 @@ namespace WinFormsPhysics {
       gravityYText.Text = Engine.GravityAcc.Y.ToString();
       gravityConstText.Text = Engine.GravityConst.ToString();
       lengthText.Text = Engine.LengthFactor.ToString();
+      maxForceText.Text = Engine.MaxForce.ToString();
     }
 
     private double Clip(double val, double min, double max) {
@@ -99,7 +100,15 @@ namespace WinFormsPhysics {
       gravityConst.Text = Engine.GravityConst.ToString();
     }
 
-    private void lengthText_TextChanged(object sender, EventArgs e) {
+    private void boundsCheckbox_CheckedChanged(object sender, EventArgs e) {
+      Engine.ScreenBounds = boundsCheckbox.Checked;
+    }
+
+    private void collisionCheckbox_CheckedChanged(object sender, EventArgs e) {
+      Engine.ObjectCollision = collisionCheckbox.Checked;
+    }
+
+    private void tryUpdateLength() {
       if (double.TryParse(lengthText.Text, out var value)) {
         value = Clip(value, 0, 10);
         Engine.LengthFactor = value;
@@ -107,12 +116,32 @@ namespace WinFormsPhysics {
       lengthText.Text = Engine.LengthFactor.ToString();
     }
 
-    private void boundsCheckbox_CheckedChanged(object sender, EventArgs e) {
-      Engine.ScreenBounds = boundsCheckbox.Checked;
+    private void lengthText_KeyUp(object sender, KeyEventArgs e) {
+      if (e.KeyCode == Keys.Enter) {
+        tryUpdateLength();
+      }
     }
 
-    private void collisionCheckbox_CheckedChanged(object sender, EventArgs e) {
-      Engine.ObjectCollision = collisionCheckbox.Checked;
+    private void lengthText_Leave(object sender, EventArgs e) {
+      tryUpdateLength();
+    }
+
+    private void tryUpdateMaxForce() {
+      if (double.TryParse(maxForceText.Text, out var value)) {
+        value = Clip(value, -1, 10000);
+        Engine.MaxForce = value;
+      }
+      maxForceText.Text = Engine.MaxForce.ToString();
+    }
+
+    private void maxForceText_KeyUp(object sender, KeyEventArgs e) {
+      if (e.KeyCode == Keys.Enter) {
+        tryUpdateMaxForce();
+      }
+    }
+
+    private void maxForceText_Leave(object sender, EventArgs e) {
+      tryUpdateMaxForce();
     }
   }
 }

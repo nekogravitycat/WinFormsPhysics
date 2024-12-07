@@ -63,6 +63,7 @@
     public double TimeLapse = 1;
     public double LengthFactor = 1;
     public double GravityConst = 400;
+    public double MaxForce = 1000;
     public Vector GravityAcc = new(0, 1);
     public List<Object> Objects = [];
 
@@ -120,7 +121,11 @@
       // Apply force to objects
       for (int i = 0; i < Objects.Count; i++) {
         Object obj = Objects[i];
-        Vector acceleration = netForces[i] / obj.Mass;
+        Vector force = netForces[i];
+        if (MaxForce < 0) {
+          force = Vector.Clip(force, new Vector(MaxForce, MaxForce));
+        }
+        Vector acceleration = force / obj.Mass;
         obj.Velocity += acceleration * TimeLapse;
       }
 

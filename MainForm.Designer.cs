@@ -43,6 +43,8 @@
       label4 = new Label();
       lengthText = new TextBox();
       clearButton = new Button();
+      maxForceText = new TextBox();
+      label5 = new Label();
       ((System.ComponentModel.ISupportInitialize)gravityX).BeginInit();
       ((System.ComponentModel.ISupportInitialize)gravityY).BeginInit();
       ((System.ComponentModel.ISupportInitialize)gravityConst).BeginInit();
@@ -53,7 +55,7 @@
       summonButton.Location = new Point(344, 222);
       summonButton.Margin = new Padding(4);
       summonButton.Name = "summonButton";
-      summonButton.Size = new Size(116, 53);
+      summonButton.Size = new Size(116, 64);
       summonButton.TabIndex = 0;
       summonButton.Text = "New Object";
       summonButton.UseVisualStyleBackColor = true;
@@ -183,7 +185,7 @@
       // label4
       // 
       label4.AutoSize = true;
-      label4.Location = new Point(22, 238);
+      label4.Location = new Point(22, 225);
       label4.Name = "label4";
       label4.Size = new Size(58, 21);
       label4.TabIndex = 13;
@@ -191,29 +193,51 @@
       // 
       // lengthText
       // 
-      lengthText.Location = new Point(101, 235);
+      lengthText.Location = new Point(109, 221);
       lengthText.Name = "lengthText";
       lengthText.Size = new Size(78, 29);
       lengthText.TabIndex = 14;
       lengthText.TextAlign = HorizontalAlignment.Center;
-      lengthText.TextChanged += lengthText_TextChanged;
+      lengthText.KeyUp += lengthText_KeyUp;
+      lengthText.Leave += lengthText_Leave;
       // 
       // clearButton
       // 
       clearButton.Location = new Point(220, 222);
       clearButton.Margin = new Padding(4);
       clearButton.Name = "clearButton";
-      clearButton.Size = new Size(116, 53);
+      clearButton.Size = new Size(116, 64);
       clearButton.TabIndex = 15;
       clearButton.Text = "Clear Objects";
       clearButton.UseVisualStyleBackColor = true;
       clearButton.Click += clearButton_Click;
       // 
-      // Form1
+      // maxForceText
+      // 
+      maxForceText.Location = new Point(109, 257);
+      maxForceText.Name = "maxForceText";
+      maxForceText.Size = new Size(78, 29);
+      maxForceText.TabIndex = 17;
+      maxForceText.TextAlign = HorizontalAlignment.Center;
+      maxForceText.KeyUp += maxForceText_KeyUp;
+      maxForceText.Leave += maxForceText_Leave;
+      // 
+      // label5
+      // 
+      label5.AutoSize = true;
+      label5.Location = new Point(22, 260);
+      label5.Name = "label5";
+      label5.Size = new Size(81, 21);
+      label5.TabIndex = 16;
+      label5.Text = "Max Force";
+      // 
+      // MainForm
       // 
       AutoScaleDimensions = new SizeF(9F, 21F);
       AutoScaleMode = AutoScaleMode.Font;
-      ClientSize = new Size(480, 298);
+      ClientSize = new Size(480, 316);
+      Controls.Add(maxForceText);
+      Controls.Add(label5);
       Controls.Add(clearButton);
       Controls.Add(lengthText);
       Controls.Add(label4);
@@ -232,7 +256,7 @@
       Controls.Add(summonButton);
       Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
       Margin = new Padding(4);
-      Name = "Form1";
+      Name = "MainForm";
       ShowIcon = false;
       Text = "WinFormsPhysics";
       ((System.ComponentModel.ISupportInitialize)gravityX).EndInit();
@@ -260,5 +284,7 @@
     private Label label4;
     private TextBox lengthText;
     private Button clearButton;
+    private TextBox maxForceText;
+    private Label label5;
   }
 }
