@@ -82,7 +82,7 @@
     public void Update(object? sender, EventArgs e) {
       if (Objects.Count == 0) return;
 
-      var netForces = new Vector[Objects.Count];
+      Vector[] netForces = new Vector[Objects.Count];
       for (int i = 0; i < Objects.Count; i++) {
         netForces[i] = new Vector(0, 0);
       }
@@ -131,7 +131,7 @@
           Object obj = Objects[i];
           Form form = obj.BodyForm;
           Vector v = obj.Velocity;
-          var bounds = Screen.FromControl(obj.BodyForm).WorkingArea;
+          Rectangle bounds = Screen.FromControl(obj.BodyForm).WorkingArea;
           double newX = v.X, newY = v.Y;
           if (form.Left <= bounds.Left) {
             newX = v.X > 0 ? v.X : -v.X;
@@ -190,8 +190,7 @@
       }
 
       // Apply velocity to objects
-      for (int i = 0; i < Objects.Count; i++) {
-        Object obj = Objects[i];
+      foreach (Object obj in Objects) {
         ObjectForm form = obj.BodyForm;
 
         if (form.FixedPos || form.BeingDrag) {
@@ -206,13 +205,12 @@
           continue;
         }
 
-        Vector oldPos = new(form.Location);
         Vector delta = obj.Velocity * TimeLapse;
-        Vector newPos = oldPos + Vector.Significant(delta);
+        Vector newPos = new Vector(form.Location) + Vector.Significant(delta);
 
         // Hard clip screen bounds
         if (ScreenBounds) {
-          var bounds = Screen.FromControl(obj.BodyForm).WorkingArea;
+          Rectangle bounds = Screen.FromControl(obj.BodyForm).WorkingArea;
           newPos.X = form.Left + 50 > bounds.Left ? newPos.X : bounds.Left;
           newPos.X = form.Right - 50 < bounds.Right ? newPos.X : bounds.Right - form.Width;
           newPos.Y = form.Top + 50 > bounds.Top ? newPos.Y : bounds.Top;
