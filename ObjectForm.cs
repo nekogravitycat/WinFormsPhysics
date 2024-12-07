@@ -2,12 +2,14 @@
 
 namespace WinFormsPhysics {
   public partial class ObjectForm : Form {
-    readonly Timer DragTimer = new();
     public double Mass = 100;
     public bool FixedPos = false;
     public bool BeingDrag = false;
+    public Vector DragVelocity = new(0, 0);
+
+    private readonly Timer DragTimer = new();
     private Point DragStartPos = Point.Empty;
-    public Point DragVelocity = Point.Empty;
+    
 
     public ObjectForm() {
       InitializeComponent();
@@ -26,7 +28,10 @@ namespace WinFormsPhysics {
     }
 
     private void ObjectForm_ResizeEnd(object sender, EventArgs e) {
-      DragVelocity = new(Cursor.Position.X - DragStartPos.X, Cursor.Position.Y - DragStartPos.Y);
+      DragVelocity = new Vector(
+        Cursor.Position.X - DragStartPos.X,
+        Cursor.Position.Y - DragStartPos.Y
+      );
       BeingDrag = false;
     }
 

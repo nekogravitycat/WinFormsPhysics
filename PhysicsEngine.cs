@@ -1,121 +1,4 @@
-using Timer = System.Windows.Forms.Timer;
-
-namespace WinFormsPhysics {
-  public partial class Form1 : Form {
-    readonly Timer UpdateTimer = new();
-    readonly PhysicsEngine Engine = new();
-    private int ObjectCount = 0;
-
-    public Form1() {
-      InitializeComponent();
-      UpdateTimer.Interval = 5;
-      UpdateTimer.Tick += Engine.Update;
-      Engine.GravityAcc.X = gravityX.Value / 10.0;
-      Engine.GravityAcc.Y = gravityY.Value / 10.0;
-      Engine.GravityConst = gravityConst.Value / 10.0;
-      gravityXText.Text = Engine.GravityAcc.X.ToString();
-      gravityYText.Text = Engine.GravityAcc.Y.ToString();
-      gravityConstText.Text = Engine.GravityConst.ToString();
-      lengthText.Text = Engine.LengthFactor.ToString();
-    }
-
-    private double Clip(double val, double min, double max) {
-      if (val < min) return min;
-      if (val > max) return max;
-      return val;
-    }
-
-    private void PhysicsCheckbox_CheckedChanged(object sender, EventArgs e) {
-      if (physicsCheckbox.Checked) {
-        Engine.ClearVelocity();
-        UpdateTimer.Start();
-      } else {
-        UpdateTimer.Stop();
-      }
-    }
-
-    private void UpdateObjectCount() {
-      ObjectCount = Engine.Objects.Count;
-      Text = $"WinFormsPhysics ({ObjectCount})";
-    }
-
-    private void SummonButton_Click(object sender, EventArgs e) {
-      var win = new ObjectForm();
-      var obj = new Object(win);
-      win.FormClosed += (sender, e) => {
-        Engine.Objects.Remove(obj);
-        UpdateObjectCount();
-      };
-      win.Show();
-      Engine.Objects.Add(obj);
-      UpdateObjectCount();
-    }
-
-    private void clearButton_Click(object sender, EventArgs e) {
-      while (Engine.Objects.Count > 0) {
-        Engine.Objects[0].BodyForm.Close();
-      }
-    }
-
-    private void gravityX_Scroll(object sender, EventArgs e) {
-      Engine.GravityAcc.X = gravityX.Value / 10.0;
-      gravityXText.Text = Engine.GravityAcc.X.ToString();
-    }
-
-    private void gravityY_Scroll(object sender, EventArgs e) {
-      Engine.GravityAcc.Y = gravityY.Value / 10.0;
-      gravityYText.Text = Engine.GravityAcc.Y.ToString();
-    }
-
-    private void gravityConst_Scroll(object sender, EventArgs e) {
-      Engine.GravityConst = gravityConst.Value / 10.0;
-      gravityConstText.Text = Engine.GravityConst.ToString();
-    }
-
-    private void gravityXText_TextChanged(object sender, EventArgs e) {
-      if (double.TryParse(gravityXText.Text, out var value)) {
-        value = Clip(value, -10, 10);
-        Engine.GravityAcc.X = value;
-        gravityX.Value = (int)value * 10;
-      }
-      gravityXText.Text = Engine.GravityAcc.X.ToString();
-    }
-
-    private void gravityYText_TextChanged(object sender, EventArgs e) {
-      if (double.TryParse(gravityYText.Text, out var value)) {
-        value = Clip(value, -10, 10);
-        Engine.GravityAcc.Y = value;
-        gravityY.Value = (int)value * 10;
-      }
-      gravityYText.Text = Engine.GravityAcc.Y.ToString();
-    }
-
-    private void gravityConstText_TextChanged(object sender, EventArgs e) {
-      if (double.TryParse(gravityConstText.Text, out var value)) {
-        value = Clip(value, 0, 500);
-        Engine.GravityConst = value;
-        gravityConst.Value = (int)value * 10;
-      }
-      gravityConst.Text = Engine.GravityConst.ToString();
-    }
-
-    private void lengthText_TextChanged(object sender, EventArgs e) {
-      if (double.TryParse(lengthText.Text, out var value)) {
-        value = Clip(value, 0, 10);
-        Engine.LengthFactor = value;
-      }
-      lengthText.Text = Engine.LengthFactor.ToString();
-    }
-
-    private void boundsCheckbox_CheckedChanged(object sender, EventArgs e) {
-      Engine.ScreenBounds = boundsCheckbox.Checked;
-    }
-
-    private void collisionCheckbox_CheckedChanged(object sender, EventArgs e) {
-      Engine.ObjectCollision = collisionCheckbox.Checked;
-    }
-  }
-
+﻿namespace WinFormsPhysics {
   public class Vector {
     public double X;
     public double Y;
@@ -164,7 +47,7 @@ namespace WinFormsPhysics {
 
   public class Object(ObjectForm form) {
     public ObjectForm BodyForm = form;
-    
+
     public double Mass => BodyForm.Mass;
     public Vector Velocity = new(0, 0);
     public Vector Position => new(
@@ -191,8 +74,8 @@ namespace WinFormsPhysics {
 
     public void ClearVelocity() {
       foreach (Object obj in Objects) {
-        obj.Velocity = new(0, 0);
-        obj.BodyForm.DragVelocity = Point.Empty;
+        obj.Velocity = new Vector(0, 0);
+        obj.BodyForm.DragVelocity = new Vector(0, 0);
       }
     }
 
@@ -201,7 +84,7 @@ namespace WinFormsPhysics {
 
       var netForces = new Vector[Objects.Count];
       for (int i = 0; i < Objects.Count; i++) {
-        netForces[i] = new(0, 0);
+        netForces[i] = new Vector(0, 0);
       }
 
       // Compute gravitational forces
@@ -249,12 +132,24 @@ namespace WinFormsPhysics {
           Form form = obj.BodyForm;
           Vector v = obj.Velocity;
           var bounds = Screen.FromControl(obj.BodyForm).WorkingArea;
-          if (form.Left <= bounds.Left || form.Right >= bounds.Right) {
-            obj.Velocity = new Vector(-v.X, v.Y) * 0.8;
+          double newX = v.X, newY = v.Y;
+          if (form.Left <= bounds.Left) {
+            newX = v.X > 0 ? v.X : -v.X;
+            newX *= 0.8;
           }
-          if (form.Top <= bounds.Top || form.Bottom >= bounds.Bottom) {
-            obj.Velocity = new Vector(v.X, -v.Y) * 0.8;
+          if (form.Right >= bounds.Right) {
+            newX = v.X < 0 ? v.X : -v.X;
+            newX *= 0.8;
           }
+          if (form.Top <= bounds.Top) {
+            newY = v.Y > 0 ? v.Y : -v.Y;
+            newY *= 0.8;
+          }
+          if (form.Bottom >= bounds.Bottom) {
+            newY = v.Y < 0 ? v.Y : -v.Y;
+            newY *= 0.8;
+          }
+          obj.Velocity = new Vector(newX, newY);
         }
 
         // With other objects
@@ -268,25 +163,14 @@ namespace WinFormsPhysics {
 
             bool horizontalCollision = overlap.Height > overlap.Width;
 
-            if (formB.FixedPos) {
+            if (formA.FixedPos || formB.FixedPos) {
+              Object movingObj = formA.FixedPos ? b : a;
               if (horizontalCollision) {
-                a.Velocity.X *= -1;
-                a.Velocity *= 0.9;
+                movingObj.Velocity.X *= -1;
               } else {
-                a.Velocity.Y *= -1;
-                a.Velocity *= 0.9;
+                movingObj.Velocity.Y *= -1;
               }
-              break;
-            }
-
-            if (formA.FixedPos) {
-              if (horizontalCollision) {
-                b.Velocity.X *= -1;
-                b.Velocity *= 0.9;
-              } else {
-                b.Velocity.Y *= -1;
-                b.Velocity *= 0.9;
-              }
+              movingObj.Velocity *= 0.9;
               break;
             }
 
@@ -311,14 +195,14 @@ namespace WinFormsPhysics {
         ObjectForm form = obj.BodyForm;
 
         if (form.FixedPos || form.BeingDrag) {
-          obj.Velocity = new(0, 0);
+          obj.Velocity = new Vector(0, 0);
           continue;
         }
 
-        Point dragV = form.DragVelocity;
-        if (!form.BeingDrag && dragV != Point.Empty) {
-          obj.Velocity = new Vector(dragV) * 0.1;
-          form.DragVelocity = Point.Empty;
+        Vector dragV = form.DragVelocity;
+        if (!form.BeingDrag && dragV.X != 0 && dragV.Y != 0) {
+          obj.Velocity = dragV * 0.1;
+          form.DragVelocity = new Vector(0, 0);
           continue;
         }
 
@@ -329,10 +213,10 @@ namespace WinFormsPhysics {
         // Hard clip screen bounds
         if (ScreenBounds) {
           var bounds = Screen.FromControl(obj.BodyForm).WorkingArea;
-          newPos.X = newPos.X > bounds.Left ? newPos.X : bounds.Left;
-          newPos.X = newPos.X < bounds.Right ? newPos.X : bounds.Right;
-          newPos.Y = newPos.Y > bounds.Top ? newPos.Y : bounds.Top;
-          newPos.Y = newPos.Y < bounds.Bottom ? newPos.Y : bounds.Bottom;
+          newPos.X = form.Left + 50 > bounds.Left ? newPos.X : bounds.Left;
+          newPos.X = form.Right - 50 < bounds.Right ? newPos.X : bounds.Right - form.Width;
+          newPos.Y = form.Top + 50 > bounds.Top ? newPos.Y : bounds.Top;
+          newPos.Y = form.Bottom - 50 < bounds.Bottom ? newPos.Y : bounds.Bottom - form.Height;
         }
 
         form.Location = newPos.ToPoint();
